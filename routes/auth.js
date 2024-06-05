@@ -17,12 +17,18 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-router.get("/login", (req, res) => {
+const redirectIfLoggedIn = (req, res, next) => {
+  if (req.user) return res.redirect("/profile");
+  return next();
+};
+
+router.get("/login", redirectIfLoggedIn, (req, res) => {
   res.render("login");
 });
 
 router.post(
   "/login",
+  redirectIfLoggedIn,
   passport.authenticate("local", {
     successRedirect: "/auth/profile",
     failureRedirect: "/auth/login",
