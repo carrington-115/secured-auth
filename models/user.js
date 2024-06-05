@@ -5,25 +5,12 @@ const bcrypt = require("bcrypt");
 // setting up the database params
 const client = new MongoClient(process.env.MONGO_DB_API);
 const clientSession = client.startSession();
-let db;
 const dbName = "Accounts";
-
-const connectDB = async () => {
-  try {
-    if (!db) {
-      await client.connect();
-      db = client.db(dbName);
-    }
-    return db;
-  } catch (error) {
-    throw new Error(error);
-  }
-};
+const db = client.db(dbName);
 
 const getUserByUsername = async (username) => {
   clientSession.startTransaction();
   try {
-    const db = await connectDB();
     const user = db.collection("users").aggregate([
       {
         $match: { name: username },
@@ -46,7 +33,6 @@ const getUserByUsername = async (username) => {
 const getUserById = async (id) => {
   clientSession.startTransaction();
   try {
-    const db = await connectDB();
     const user = db
       .collection("Accounts")
       .aggregate([{ $match: { _id: new ObjectId(id) } }]);

@@ -6,6 +6,16 @@ const session = require("express-session");
 const express = require("express");
 const app = express();
 const authRouter = require("./routes/auth");
+const { MongoClient } = require("mongodb");
+const client = new MongoClient(process.env.MONGO_DB_API);
+const dbName = "Accounts";
+
+client
+  .connect()
+  .then(() => console.log("The db client is connect"))
+  .catch((err) => {
+    throw new Error(err);
+  });
 
 app.set("view engine", "ejs");
 
@@ -14,7 +24,7 @@ app.use([
     secret: "my secret key",
     resave: false,
     saveUninitialized: true,
-    store: MongoStore.create({ mongoUrl: process.env.MONGO_DB_API }),
+    store: MongoStore.create({ client: client, dbName: dbName }),
     cookie: { secure: false },
   }),
   express.json(),

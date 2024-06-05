@@ -10,7 +10,7 @@ passport.use(
       if (!user) {
         return done(null, false, { message: "User does not exist" });
       }
-      const isMatch = bcrypt.compare(user.password, password);
+      const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         return done(null, false, { message: "The password is incorrect" });
       }
