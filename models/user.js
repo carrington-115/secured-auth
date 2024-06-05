@@ -3,7 +3,7 @@ const { MongoClient, ObjectId } = require("mongodb");
 const bcrypt = require("bcrypt");
 
 // setting up the database params
-const client = new MongoClient(process.env.MONGODB_API);
+const client = new MongoClient(process.env.MONGO_DB_API);
 const clientSession = client.startSession();
 let db;
 const dbName = "Accounts";
