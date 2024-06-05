@@ -24,11 +24,21 @@ router.get("/login", (req, res) => {
 router.post(
   "/login",
   passport.authenticate("local", {
-    successRedirect: "/",
+    successRedirect: "/auth/profile",
     failureRedirect: "/auth/login",
     failureFlash: true,
   })
 );
+
+router.get("/profile", (req, res) => {
+  if (!req.isAuthenticated) {
+    res.redirect("/auth/login");
+  }
+  const { username } = req.user;
+  return res
+    .status(200)
+    .json({ success: true, message: `${username} is logged in` });
+});
 
 router.post("/logout", (req, res) => {
   req.logout((err) => {

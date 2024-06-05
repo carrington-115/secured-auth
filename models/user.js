@@ -7,21 +7,14 @@ const client = new MongoClient(process.env.MONGO_DB_API);
 const clientSession = client.startSession();
 const dbName = "Accounts";
 const db = client.db(dbName);
+const accountsCollections = db.collection("users");
 
 const getUserByUsername = async (username) => {
   clientSession.startTransaction();
   try {
-    const user = db.collection("users").aggregate([
-      {
-        $match: { name: username },
-      },
-    ]);
+    const user = await db.collection("users").findOne({ username: username });
     await clientSession.commitTransaction();
-    if (user) {
-      return user;
-    } else {
-      return `The user: ${username} does not exist`;
-    }
+    return user;
   } catch (error) {
     await clientSession.abortTransaction();
     throw new Error(error);
@@ -33,9 +26,7 @@ const getUserByUsername = async (username) => {
 const getUserById = async (id) => {
   clientSession.startTransaction();
   try {
-    const user = db
-      .collection("Accounts")
-      .aggregate([{ $match: { _id: new ObjectId(id) } }]);
+    const user = await accountsCollections.findOne({ _id: new ObjectId(id) });
     await clientSession.commitTransaction();
     return user;
   } catch (error) {
@@ -49,11 +40,11 @@ const getUserById = async (id) => {
 const createUser = async (username, password) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 12);
-    const addUsertoDB = await db.collection("Accounts").aggregate([
-      {
-        $set: { username, password: hashedPassword },
-      },
-    ]);
+    const addUsertoDB = await accountsCollections.insertOne({
+      username,
+      password: hashedPassword,
+    });
+    console.log("sent data", addUsertoDB);
     return addUsertoDB.insertedId;
   } catch (error) {
     throw new Error(error);
